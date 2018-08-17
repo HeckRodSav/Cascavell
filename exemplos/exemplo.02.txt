@@ -1,0 +1,12 @@
+double quadradoDe(double x):
+    return x*x
+
+int main():
+    double a
+    double b
+    
+    double c = quadradoDe(a)
+
+    print(c)
+
+    return 0

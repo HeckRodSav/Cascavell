@@ -1,0 +1,24 @@
+int mdc(int a, int b):
+    while a != b:
+		if a > b:
+            a -= b
+		else:
+            b -= a
+	return a
+
+bool par(int a)
+    return a%2==0
+
+int collatz(int x):
+    return x = (par(x))? x/2 : 3*x+1
+
+
+int main():
+    int a = 50, b = 0, c = 0
+    while a != 1:
+        b = collatz(a)
+        c = mcd(a,b)
+        print(c)
+        a = b
+    return 0
+

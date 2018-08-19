@@ -16,13 +16,17 @@ $(LEXER_C) : $(LEXER)
 $(RUNNER) : $(LEXER_C)
 	$(GCC) $< -o $@ $(CFLAGS);
 
+examples: $(RUNNER)
+	./$(RUNNER) ../exemplos/exemplo.01.cll;\
+	./$(RUNNER) ../exemplos/exemplo.02.cll;\
+
 .PHONY: test full clean clear
 
 test:
 	./$(RUNNER) ../testes.cll 
 
 full:
-	make clear recompile test
+	make clear recompile test examples
 
 clean:
 	rm -f ./$(LEXER_C) ./$(NAME).cpp 

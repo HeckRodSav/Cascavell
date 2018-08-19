@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#define MAXSIZE 5
+#define MAXSIZE 80
 
 struct stack{
 
@@ -13,8 +13,6 @@ typedef struct stack STACK;
 STACK columnsStack;
 
 void push (int num){
-
-    int num;
 
     if (columnsStack.top == (MAXSIZE - 1)){
         return;

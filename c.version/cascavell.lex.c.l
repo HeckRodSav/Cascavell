@@ -78,6 +78,8 @@ id ({alpha}|_)(_|{alphanum})*
 
 "\/\/"(.)*/(\n)         { return KEY_COMMENT;}
 "\/*"([^"*\/"])*"*\/"   { return KEY_COMMENT;}
+^" "\n                  { ;}
+^" "                    { return KEY_BLANK;}
 {vazio}                 { blankCount++;}
 {di}                    { return KEY_NOT_ID;}
 {inteiro}               { return KEY_INTEGER;}

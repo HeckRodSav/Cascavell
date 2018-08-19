@@ -25,7 +25,7 @@ full:
 	make clear recompile test
 
 clean:
-	rm -f ./*.c ./*cpp ./*.h
+	rm -f ./$(LEXER_C) ./$(NAME).cpp 
 
 clear: clean
-	rm -f ./*.run
+	rm -f ./$(RUNNER)

@@ -52,6 +52,7 @@ char keyWords[][10]=
 
 /*contadores para usar identacao como marcador*/
 int lineNo = 0, blankCount = 0, lWhiteSpaces = 0, dedent = 0;
+int identation = 0;
 
 #define BUFFER_SIZE 50
 char buffer[BUFFER_SIZE];
@@ -76,15 +77,15 @@ id ({alpha}|_)(_|{alphanum})*
 
 %%
 
-"\/\/"(.)*/(\n)         { return KEY_COMMENT;}
-"\/*"([^"*\/"])*"*\/"   { return KEY_COMMENT;}
-^" "\n                  { ;}
-^" "                    { return KEY_BLANK;}
-{vazio}                 { blankCount++;}
-{di}                    { return KEY_NOT_ID;}
-{inteiro}               { return KEY_INTEGER;}
-{real}                  { return KEY_REAL;}
-{id}                    { return palavraReservada(yytext) ? KEY_RESERVED_WORD : KEY_ID;}
+"\/\/"(.)*/(\n)         { return KEY_COMMENT; }
+"\/*"([^"*\/"])*"*\/"   { return KEY_COMMENT; }
+^{vazio}\n              { ; }
+^{vazio}                { identation = strlen(yytext); return KEY_BLANK; }
+{vazio}                 { blankCount++; }
+{di}                    { return KEY_NOT_ID; }
+{inteiro}               { return KEY_INTEGER; }
+{real}                  { return KEY_REAL; }
+{id}                    { return palavraReservada(yytext) ? KEY_RESERVED_WORD : KEY_ID; }
 "="                     { return KEY_EQUAL; }
 "+"                     { return KEY_PLUS; }
 "-"                     { return KEY_MINUS; }
@@ -101,7 +102,7 @@ id ({alpha}|_)(_|{alphanum})*
 "}"                     { return KEY_BRACKET_C_R; }
 "<"                     { return KEY_BRACKET_A_L; }
 ">"                     { return KEY_BRACKET_A_R; }
-\n                      { return KEY_LINEBREAK; }
+\n                      { identation = 0; return KEY_LINEBREAK; }
 .                       {;}
 
 
@@ -127,7 +128,7 @@ int main( const int argc, const char *argv[ ])
     while(codigo = yylex())
     {
 
-        fprintf(logger ,"%-30s - %s\n",getMessage(codigo), codigo == KEY_LINEBREAK ? "\'\\n\'" : yytext);
+        fprintf(logger ,"%-30s - `%s\'\n",getMessage(codigo), codigo == KEY_LINEBREAK ? "\\n" : yytext);
     }
     fprintf(logger ,"%d espaços em branco\n", blankCount);
     fprintf(stderr, "Done\a\n");
@@ -149,6 +150,7 @@ const char * getMessage(int codigo)
     else switch(codigo)
     {
         case KEY_ERROR:           sprintf(buffer, "Erro");                        break;
+        case KEY_BLANK:           sprintf(buffer, "Tabulado: %d#", identation);   break;
         case KEY_COMMENT:         sprintf(buffer, "Comentario");                  break;
         case KEY_ID:              sprintf(buffer, "ID generico");                 break;
         case KEY_INTEGER:         sprintf(buffer, "Valor numerico");              break;

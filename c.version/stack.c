@@ -1,6 +1,4 @@
-#include <stdio.h>
-
-#define MAXSIZE 80
+#define MAXSIZE 5
 
 struct stack{
 
@@ -27,7 +25,20 @@ void push (int num){
 
 int pop (){
 
-    int num;
+    if (columnsStack.top == - 1){
+
+        return (columnsStack.top);
+    }
+    else{
+
+        int num = columnsStack.stk[columnsStack.top];
+        columnsStack.top = columnsStack.top - 1;
+
+        return num;
+    }
+}
+
+int top(){
 
     if (columnsStack.top == - 1){
 
@@ -35,9 +46,6 @@ int pop (){
     }
     else{
 
-        num = columnsStack.stk[columnsStack.top];
-        columnsStack.top = columnsStack.top - 1;
+        return columnsStack.stk[columnsStack.top];
     }
-
-    return(num);
 }

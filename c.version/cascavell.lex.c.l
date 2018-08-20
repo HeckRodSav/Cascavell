@@ -20,8 +20,10 @@ enum KEY\
     KEY_ASTERISK,
     KEY_SLASH,
     KEY_CARET,
+    KEY_TILDE,
     KEY_COLON,
-    KEY_INTERROGATION, 
+    KEY_INTERROGATION,
+    KEY_EXCLAMATION,
     KEY_BRACKET_R_L,
     KEY_BRACKET_R_R,
     KEY_BRACKET_B_L,
@@ -32,6 +34,7 @@ enum KEY\
     KEY_BRACKET_A_R,
     KEY_PERCENT,
     KEY_PIPE,
+    KEY_AMPERSAND,
     KEY_LINEBREAK,
     KEY_RESERVED_WORD_VOID,
     KEY_RESERVED_WORD_IF,
@@ -100,10 +103,13 @@ id ({alpha}|_)(_|{alphanum})*
 "*"                     { COMPACTER; return KEY_ASTERISK; }
 "/"                     { COMPACTER; return KEY_SLASH; }
 "^"                     { COMPACTER; return KEY_CARET; }
+"~"                     { COMPACTER; return KEY_TILDE; }
 "%"                     { COMPACTER; return KEY_PERCENT; }
 "|"                     { COMPACTER; return KEY_PIPE; }
+"&"                     { COMPACTER; return KEY_AMPERSAND; }
 ":"                     { COMPACTER; return KEY_COLON; }
 "?"                     { COMPACTER; return KEY_INTERROGATION; }
+"!"                     { COMPACTER; return KEY_EXCLAMATION; } 
 "("                     { COMPACTER; return KEY_BRACKET_R_L; }
 ")"                     { COMPACTER; return KEY_BRACKET_R_R; }
 "["                     { COMPACTER; return KEY_BRACKET_B_L; }
@@ -113,7 +119,7 @@ id ({alpha}|_)(_|{alphanum})*
 "<"                     { COMPACTER; return KEY_BRACKET_A_L; }
 ">"                     { COMPACTER; return KEY_BRACKET_A_R; }
 \n                      { yycolumnno = 0; identation = 0; return KEY_LINEBREAK; }
-.                       {;}
+.                       { ; }
 
 
 
@@ -174,10 +180,13 @@ void getMessage(int codigo)
         case KEY_ASTERISK:              sprintf(buffer, "Simbolo: Asterisco");        break;
         case KEY_SLASH:                 sprintf(buffer, "Simbolo: Barra");            break;
         case KEY_CARET:                 sprintf(buffer, "Simbolo: Circunflexo");      break;
+        case KEY_TILDE:                 sprintf(buffer, "Simbolo: Til");              break;
         case KEY_PERCENT:               sprintf(buffer, "Simbolo: Porcentagem");      break;
         case KEY_PIPE:                  sprintf(buffer, "Simbolo: Pipe");             break;
+        case KEY_AMPERSAND:             sprintf(buffer, "Simbolo: Ampersand");        break;
         case KEY_COLON:                 sprintf(buffer, "Simbolo: Dois pontos");      break;
         case KEY_INTERROGATION:         sprintf(buffer, "Simbolo: Interrogacao");     break;
+        case KEY_EXCLAMATION:           sprintf(buffer, "Simbolo: Exclamacao");       break;
         case KEY_BRACKET_R_L:           sprintf(buffer, "Abre Parenteses");           break;
         case KEY_BRACKET_R_R:           sprintf(buffer, "Fecha Parenteses");          break;
         case KEY_BRACKET_B_L:           sprintf(buffer, "Abre Chaves");               break;

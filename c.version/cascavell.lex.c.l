@@ -46,6 +46,7 @@ enum KEY\
     KEY_RESERVED_WORD_BOOL,
     KEY_RESERVED_WORD_WHILE,
     KEY_RESERVED_WORD_RETURN,
+    KEY_RESERVED_WORD_END,
 };
 
 /*contadores para usar identacao como marcador*/
@@ -93,6 +94,7 @@ id ({alpha}|_)(_|{alphanum})*
 "bool"                  { COMPACTER; return KEY_RESERVED_WORD_BOOL; }
 "while"                 { COMPACTER; return KEY_RESERVED_WORD_WHILE; }
 "return"                { COMPACTER; return KEY_RESERVED_WORD_RETURN; }
+"end"                   { COMPACTER; return KEY_RESERVED_WORD_END; }
 {di}                    { COMPACTER; return KEY_NOT_ID; }
 {inteiro}               { COMPACTER; return KEY_INTEGER; }
 {real}                  { COMPACTER; return KEY_REAL; }
@@ -160,16 +162,17 @@ void getMessage(int codigo)
         case KEY_ERROR:                 sprintf(buffer, "Erro");                      break;
         case KEY_COMMENT:               sprintf(buffer, "Comentario");                break;
         case KEY_BLANK:                 sprintf(buffer, "Tabulado: %d#", identation); break;
-        case KEY_RESERVED_WORD_VOID:    sprintf(buffer, "Palavra chave:");            break;                  
-        case KEY_RESERVED_WORD_IF:      sprintf(buffer, "Palavra chave:");            break;                    
-        case KEY_RESERVED_WORD_ELSE:    sprintf(buffer, "Palavra chave:");            break;                  
-        case KEY_RESERVED_WORD_INT:     sprintf(buffer, "Palavra chave:");            break;                   
-        case KEY_RESERVED_WORD_DOUBLE:  sprintf(buffer, "Palavra chave:");            break;                
-        case KEY_RESERVED_WORD_FLOAT:   sprintf(buffer, "Palavra chave:");            break;                 
-        case KEY_RESERVED_WORD_CHAR:    sprintf(buffer, "Palavra chave:");            break;                  
-        case KEY_RESERVED_WORD_BOOL:    sprintf(buffer, "Palavra chave:");            break;                  
-        case KEY_RESERVED_WORD_WHILE:   sprintf(buffer, "Palavra chave:");            break;                 
-        case KEY_RESERVED_WORD_RETURN:  sprintf(buffer, "Palavra chave:");            break;                
+        case KEY_RESERVED_WORD_VOID:    sprintf(buffer, "Palavra chave:");            break;
+        case KEY_RESERVED_WORD_IF:      sprintf(buffer, "Palavra chave:");            break;
+        case KEY_RESERVED_WORD_ELSE:    sprintf(buffer, "Palavra chave:");            break;
+        case KEY_RESERVED_WORD_INT:     sprintf(buffer, "Palavra chave:");            break;
+        case KEY_RESERVED_WORD_DOUBLE:  sprintf(buffer, "Palavra chave:");            break;
+        case KEY_RESERVED_WORD_FLOAT:   sprintf(buffer, "Palavra chave:");            break;
+        case KEY_RESERVED_WORD_CHAR:    sprintf(buffer, "Palavra chave:");            break;
+        case KEY_RESERVED_WORD_BOOL:    sprintf(buffer, "Palavra chave:");            break;
+        case KEY_RESERVED_WORD_WHILE:   sprintf(buffer, "Palavra chave:");            break;
+        case KEY_RESERVED_WORD_RETURN:  sprintf(buffer, "Palavra chave:");            break;
+        case KEY_RESERVED_WORD_END:     sprintf(buffer, "Palavra chave:");            break;
         case KEY_NOT_ID:                sprintf(buffer, "ID estranho");               break;
         case KEY_INTEGER:               sprintf(buffer, "Valor inteiro");             break;
         case KEY_REAL:                  sprintf(buffer, "Valor real");                break;

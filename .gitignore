@@ -1,6 +1,6 @@
 
 *.cpp
-*.h
 *.log
 *.run
 c.version/cascavell.c
+*desktop.ini

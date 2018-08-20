@@ -1,51 +1,38 @@
-#define MAXSIZE 5
+#include "stack.h"
 
-struct stack{
-
-    int stk[MAXSIZE];
-    int top;
-};
-
-typedef struct stack STACK;
-
-STACK columnsStack;
-
-void push (int num){
-
-    if (columnsStack.top == (MAXSIZE - 1)){
-        return;
-    }
-    else{
-        columnsStack.top = columnsStack.top + 1;
-        columnsStack.stk[columnsStack.top] = num;
-    }
-
-    return;
+int stack_push(Stack *s, int num)
+{
+    if (s->size == STACK_MAXSIZE) return -1;
+    (s->stk)[(s->size)++] = num;
+    return 0;
 }
 
-int pop (){
-
-    if (columnsStack.top == - 1){
-
-        return (columnsStack.top);
-    }
-    else{
-
-        int num = columnsStack.stk[columnsStack.top];
-        columnsStack.top = columnsStack.top - 1;
-
-        return num;
-    }
+int stack_pop(Stack *s)
+{
+    if ((s->size) == 0) return -1;
+    // int num = (s->stk)[(s->head)];
+    (s->size)--;
+    return 0;
 }
 
-int top(){
-
-    if (columnsStack.top == - 1){
-
-        return (columnsStack.top);
-    }
-    else{
-
-        return columnsStack.stk[columnsStack.top];
-    }
+int stack_top(Stack *s)
+{
+    if ((s->size) == 0) return -1;
+    return (s->stk)[(s->size)-1];
 }
+
+int stack_size(Stack *s)
+{
+    return s->size;
+}
+
+int stack_isEmpty(Stack *s)
+{
+    return s->size == 0;
+}
+
+int stack_isFull(Stack *s)
+{
+    return s->size == STACK_MAXSIZE;
+}
+

@@ -13,8 +13,8 @@ recompile:
 $(LEXER_C) : $(LEXER)
 	$(FLEX) -o $@ $< ;
 
-$(RUNNER) : $(LEXER_C)
-	$(GCC) $< -o $@ $(CFLAGS);
+$(RUNNER) : $(LEXER_C) stack.c
+	$(GCC) $^ -o $@ $(CFLAGS);
 
 examples: $(RUNNER)
 	./$(RUNNER) ../exemplos/exemplo.01.cll;\

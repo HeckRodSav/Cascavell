@@ -4,13 +4,18 @@ int mdc(int a, int b):
             a -= b
         else:
             b -= a
+        end //if ends here
+    end //while ends here
     return a
+end //function ends here
 
-bool par(int a)
+bool par(int a):
     return a%2==0
+end //function ends here
 
 int collatz(int x):
     return x = (par(x))? x/2 : 3*x+1
+end //function ends here
 
 
 int main():
@@ -20,5 +25,7 @@ int main():
         c = mcd(a,b)
         print(c)
         a = b
+    end //while ends here
     return 0
+end //function ends here
 

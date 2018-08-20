@@ -119,13 +119,9 @@ id ({alpha}|_)(_|{alphanum})*
 "end"                   {
                             COMPACTER;
                             lastIdent = stack_top(&tabulationStack);
-                            if(identation < lastIdent)
-                            {
-                                if(stack_isEmpty(&tabulationStack)) return KEY_ERROR;
-                                stack_pop(&tabulationStack);
-                                return KEY_LESS_IDENTATION;
-                            }
-                            return KEY_ERROR;
+                            if(identation != lastIdent) return KEY_ERROR;
+                            if(stack_isEmpty(&tabulationStack)) return KEY_ERROR;
+                            stack_pop(&tabulationStack);
                         }
 {di}                    { COMPACTER; return KEY_NOT_ID; }
 {inteiro}               { COMPACTER; return KEY_INTEGER; }

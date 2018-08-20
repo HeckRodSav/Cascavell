@@ -87,23 +87,23 @@ id ({alpha}|_)(_|{alphanum})*
 "\/\/"(.)*/(\n)         { return KEY_COMMENT; }
 "\/*"([^"*\/"])*"*\/"   { return KEY_COMMENT; }
 ^{vazio}*\n             { ; }
-^{vazio}*               {                                                             
-                            lastIdent = stack_top(&tabulationStack);                  
-                            yycolumnno = identation = strlen(yytext);                 
-                            if(lastIdent == identation) ;                             
+^{vazio}*               {
+                            lastIdent = stack_top(&tabulationStack);
+                            yycolumnno = identation = strlen(yytext);
+                            if(lastIdent == identation);
                             else if(lastIdent < identation)                           
-                            {                                                         
-                                if(stack_isFull(&tabulationStack)) return KEY_ERROR;  
-                                stack_push(&tabulationStack, identation);             
-                                return KEY_MORE_IDENTATION;                           
-                            }                                                         
+                            {
+                                if(stack_isFull(&tabulationStack)) return KEY_ERROR;
+                                stack_push(&tabulationStack, identation);
+                                return KEY_MORE_IDENTATION;
+                            }
                             else if(lastIdent > identation)                           
-                            {                                                         
-                                if(stack_isEmpty(&tabulationStack)) return KEY_ERROR; 
-                                stack_pop(&tabulationStack);                          
-                                return KEY_LESS_IDENTATION;                           
-                            }                                                         
-                            return KEY_BLANK;                                         
+                            {
+                                if(stack_isEmpty(&tabulationStack)) return KEY_ERROR;
+                                stack_pop(&tabulationStack);
+                                return KEY_LESS_IDENTATION;
+                            }
+                            return KEY_BLANK;
                         }
 {vazio}                 { blankCount++; yycolumnno++; }
 "void"                  { COMPACTER; return KEY_RESERVED_WORD_VOID; }
@@ -116,7 +116,17 @@ id ({alpha}|_)(_|{alphanum})*
 "bool"                  { COMPACTER; return KEY_RESERVED_WORD_BOOL; }
 "while"                 { COMPACTER; return KEY_RESERVED_WORD_WHILE; }
 "return"                { COMPACTER; return KEY_RESERVED_WORD_RETURN; }
-"end"                   { COMPACTER; return KEY_RESERVED_WORD_END; }
+"end"                   {
+                            COMPACTER;
+                            lastIdent = stack_top(&tabulationStack);
+                            if(identation < lastIdent)
+                            {
+                                if(stack_isEmpty(&tabulationStack)) return KEY_ERROR;
+                                stack_pop(&tabulationStack);
+                                return KEY_LESS_IDENTATION;
+                            }
+                            return KEY_ERROR;
+                        }
 {di}                    { COMPACTER; return KEY_NOT_ID; }
 {inteiro}               { COMPACTER; return KEY_INTEGER; }
 {real}                  { COMPACTER; return KEY_REAL; }
@@ -170,7 +180,7 @@ int main( const int argc, const char *argv[ ])
     while(codigo = yylex())
     {
         getMessage(codigo);
-        fprintf(logger ,"ln: %3d, col: %3d, %-25s - `%s\'\n", yylineno, yycolumnno, buffer, codigo == KEY_LINEBREAK ? "\\n" : codigo == KEY_COMMENT ? "<ignorado>" : yytext);
+        fprintf(logger ,"ln: %3d, col: %3d, %-30s - `%s\'\n", yylineno, yycolumnno, buffer, codigo == KEY_LINEBREAK ? "\\n" : codigo == KEY_COMMENT ? "<ignorado>" : yytext);
     }
     fprintf(logger ,"%d espaços em branco\n", blankCount);
     fprintf(stderr, "Done\a\n");
@@ -222,7 +232,7 @@ void getMessage(int codigo)
         case KEY_BRACKET_A_L:           sprintf(buffer, "Abre Angulos");                     break;
         case KEY_BRACKET_A_R:           sprintf(buffer, "Fecha Angulos");                    break;
         case KEY_LINEBREAK:             sprintf(buffer, "Quebra de linha");                  break;
-        case KEY_MORE_IDENTATION:       sprintf(buffer, "Inicio de bloco: #%d", identation); break;
+        case KEY_MORE_IDENTATION:       sprintf(buffer, "Inicio de bloco: #%d -> #%d", lastIdent, identation); break;
         case KEY_LESS_IDENTATION:       sprintf(buffer, "Fim de bloco: #%d -> #%d", lastIdent, identation);     break;
         default:                        sprintf(buffer, "Desconhecido");                     break;
     }

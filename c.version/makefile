@@ -7,8 +7,8 @@ FLEX = flex
 GCC = gcc
 CFLAGS = -lfl
 
-recompile:
-	make $(RUNNER)
+recompile: clean $(RUNNER)
+	echo Done
 
 $(LEXER_C) : $(LEXER)
 	$(FLEX) -o $@ $< ;

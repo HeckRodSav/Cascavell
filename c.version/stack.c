@@ -2,17 +2,17 @@
 
 int stack_push(Stack *s, int num)
 {
-    if (s->size == STACK_MAXSIZE) return -1;
+    if (s->size == STACK_MAXSIZE) return 0;
     (s->stk)[(s->size)++] = num;
-    return 0;
+    return 1;
 }
 
 int stack_pop(Stack *s)
 {
-    if ((s->size) == 0) return -1;
+    if ((s->size) == 0) return 0;
     // int num = (s->stk)[(s->head)];
     (s->size)--;
-    return 0;
+    return 1;
 }
 
 int stack_top(Stack *s)

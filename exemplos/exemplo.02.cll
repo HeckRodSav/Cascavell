@@ -1,5 +1,6 @@
 double quadradoDe(double x):
     return x*x
+end //function ends here
 
 int main():
     double a
@@ -10,3 +11,4 @@ int main():
     print(c)
 
     return 0
+end //function ends here

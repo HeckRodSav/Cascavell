@@ -116,12 +116,20 @@ id ({alpha}|_)(_|{alphanum})*
 "bool"                  { COMPACTER; return KEY_RESERVED_WORD_BOOL; }
 "while"                 { COMPACTER; return KEY_RESERVED_WORD_WHILE; }
 "return"                { COMPACTER; return KEY_RESERVED_WORD_RETURN; }
-"end"                   {
+^"end"                  { 
                             COMPACTER;
                             lastIdent = stack_top(&tabulationStack);
-                            if(identation != lastIdent) return KEY_ERROR;
-                            if(stack_isEmpty(&tabulationStack)) return KEY_ERROR;
-                            stack_pop(&tabulationStack);
+                            if(lastIdent > identation)                           
+                            {
+                                if(stack_isEmpty(&tabulationStack)) return KEY_ERROR;
+                                stack_pop(&tabulationStack);
+                                return KEY_LESS_IDENTATION;
+                            }
+                            return KEY_ERROR;
+                        }
+"end"                   {
+                            COMPACTER;
+                            if(identation == lastIdent) return KEY_ERROR;
                         }
 {di}                    { COMPACTER; return KEY_NOT_ID; }
 {inteiro}               { COMPACTER; return KEY_INTEGER; }

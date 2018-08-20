@@ -6,14 +6,10 @@
 
 enum KEY\
 {
-    KEY_OTHERWISE = -1,
-    KEY_BLANK=1,
     KEY_ERROR,
-    KEY_COMMENT,
     KEY_ID,
     KEY_INTEGER,
     KEY_REAL,
-    KEY_NOT_ID,
     KEY_EQUAL,
     KEY_PLUS,
     KEY_MINUS,
@@ -21,6 +17,7 @@ enum KEY\
     KEY_SLASH,
     KEY_CARET,
     KEY_TILDE,
+    KEY_COMMA,
     KEY_COLON,
     KEY_INTERROGATION,
     KEY_EXCLAMATION,
@@ -41,12 +38,10 @@ enum KEY\
     KEY_RESERVED_WORD_ELSE,
     KEY_RESERVED_WORD_INT,
     KEY_RESERVED_WORD_DOUBLE,
-    KEY_RESERVED_WORD_FLOAT,
     KEY_RESERVED_WORD_CHAR,
     KEY_RESERVED_WORD_BOOL,
     KEY_RESERVED_WORD_WHILE,
     KEY_RESERVED_WORD_RETURN,
-    KEY_RESERVED_WORD_END,
     KEY_MORE_IDENTATION,
     KEY_LESS_IDENTATION,
 };
@@ -84,8 +79,8 @@ id ({alpha}|_)(_|{alphanum})*
 
 %%
 
-"\/\/"(.)*/(\n)         { return KEY_COMMENT; }
-"\/*"([^"*\/"])*"*\/"   { return KEY_COMMENT; }
+"\/\/"(.)*/(\n)         { ; }
+"\/*"([^"*\/"])*"*\/"   { ; }
 ^{vazio}*\n             { ; }
 ^{vazio}*               {
                             lastIdent = stack_top(&tabulationStack);
@@ -103,7 +98,6 @@ id ({alpha}|_)(_|{alphanum})*
                                 stack_pop(&tabulationStack);
                                 return KEY_LESS_IDENTATION;
                             }
-                            return KEY_BLANK;
                         }
 {vazio}                 { blankCount++; yycolumnno++; }
 "void"                  { COMPACTER; return KEY_RESERVED_WORD_VOID; }
@@ -111,7 +105,6 @@ id ({alpha}|_)(_|{alphanum})*
 "else"                  { COMPACTER; return KEY_RESERVED_WORD_ELSE; }
 "int"                   { COMPACTER; return KEY_RESERVED_WORD_INT; }
 "double"                { COMPACTER; return KEY_RESERVED_WORD_DOUBLE; }
-"float"                 { COMPACTER; return KEY_RESERVED_WORD_FLOAT; }
 "char"                  { COMPACTER; return KEY_RESERVED_WORD_CHAR; }
 "bool"                  { COMPACTER; return KEY_RESERVED_WORD_BOOL; }
 "while"                 { COMPACTER; return KEY_RESERVED_WORD_WHILE; }
@@ -131,7 +124,7 @@ id ({alpha}|_)(_|{alphanum})*
                             COMPACTER;
                             if(identation == lastIdent) return KEY_ERROR;
                         }
-{di}                    { COMPACTER; return KEY_NOT_ID; }
+{di}                    { COMPACTER; return KEY_ERROR; }
 {inteiro}               { COMPACTER; return KEY_INTEGER; }
 {real}                  { COMPACTER; return KEY_REAL; }
 {id}                    { COMPACTER; return KEY_ID; }
@@ -145,6 +138,7 @@ id ({alpha}|_)(_|{alphanum})*
 "%"                     { COMPACTER; return KEY_PERCENT; }
 "|"                     { COMPACTER; return KEY_PIPE; }
 "&"                     { COMPACTER; return KEY_AMPERSAND; }
+","                     { COMPACTER; return KEY_COMMA; }
 ":"                     { COMPACTER; return KEY_COLON; }
 "?"                     { COMPACTER; return KEY_INTERROGATION; }
 "!"                     { COMPACTER; return KEY_EXCLAMATION; } 
@@ -184,7 +178,7 @@ int main( const int argc, const char *argv[ ])
     while(codigo = yylex())
     {
         getMessage(codigo);
-        fprintf(logger ,"ln: %3d, col: %3d, %-30s - `%s\'\n", yylineno, yycolumnno, buffer, codigo == KEY_LINEBREAK ? "\\n" : codigo == KEY_COMMENT ? "<ignorado>" : yytext);
+        fprintf(logger ,"ln: %3d, col: %3d, %-30s - `%s\'\n", yylineno, yycolumnno, buffer, codigo == KEY_LINEBREAK ? "\\n" : yytext);
     }
     fprintf(logger ,"%d espaços em branco\n", blankCount);
     fprintf(stderr, "Done\a\n");
@@ -197,20 +191,15 @@ void getMessage(int codigo)
     switch(codigo)
     {
         case KEY_ERROR:                 sprintf(buffer, "Erro");                             break;
-        case KEY_COMMENT:               sprintf(buffer, "Comentario");                       break;
-        case KEY_BLANK:                 sprintf(buffer, "Tabulado: #%d", identation);        break;
         case KEY_RESERVED_WORD_VOID:    sprintf(buffer, "Palavra chave:");                   break;
         case KEY_RESERVED_WORD_IF:      sprintf(buffer, "Palavra chave:");                   break;
         case KEY_RESERVED_WORD_ELSE:    sprintf(buffer, "Palavra chave:");                   break;
         case KEY_RESERVED_WORD_INT:     sprintf(buffer, "Palavra chave:");                   break;
         case KEY_RESERVED_WORD_DOUBLE:  sprintf(buffer, "Palavra chave:");                   break;
-        case KEY_RESERVED_WORD_FLOAT:   sprintf(buffer, "Palavra chave:");                   break;
         case KEY_RESERVED_WORD_CHAR:    sprintf(buffer, "Palavra chave:");                   break;
         case KEY_RESERVED_WORD_BOOL:    sprintf(buffer, "Palavra chave:");                   break;
         case KEY_RESERVED_WORD_WHILE:   sprintf(buffer, "Palavra chave:");                   break;
         case KEY_RESERVED_WORD_RETURN:  sprintf(buffer, "Palavra chave:");                   break;
-        case KEY_RESERVED_WORD_END:     sprintf(buffer, "Palavra chave:");                   break;
-        case KEY_NOT_ID:                sprintf(buffer, "ID estranho");                      break;
         case KEY_INTEGER:               sprintf(buffer, "Valor inteiro");                    break;
         case KEY_REAL:                  sprintf(buffer, "Valor real");                       break;
         case KEY_ID:                    sprintf(buffer, "ID generico");                      break;
@@ -225,6 +214,7 @@ void getMessage(int codigo)
         case KEY_PIPE:                  sprintf(buffer, "Simbolo: Pipe");                    break;
         case KEY_AMPERSAND:             sprintf(buffer, "Simbolo: Ampersand");               break;
         case KEY_COLON:                 sprintf(buffer, "Simbolo: Dois pontos");             break;
+        case KEY_COMMA:                 sprintf(buffer, "Simbolo: Virgula");                 break;
         case KEY_INTERROGATION:         sprintf(buffer, "Simbolo: Interrogacao");            break;
         case KEY_EXCLAMATION:           sprintf(buffer, "Simbolo: Exclamacao");              break;
         case KEY_BRACKET_R_L:           sprintf(buffer, "Abre Parenteses");                  break;

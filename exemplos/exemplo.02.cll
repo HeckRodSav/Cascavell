@@ -3,12 +3,11 @@ double quadradoDe(double x):
 end //function ends here
 
 int main():
-    double a
-    double b
+    double a = 7.4
     
-    double c = quadradoDe(a)
+    double b = quadradoDe(a)
 
-    print(c)
+    print(b)
 
     return 0
 end //function ends here

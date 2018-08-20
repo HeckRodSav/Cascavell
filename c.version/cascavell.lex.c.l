@@ -17,6 +17,7 @@ enum KEY\
     KEY_SLASH,
     KEY_CARET,
     KEY_TILDE,
+    KEY_COMMA,
     KEY_COLON,
     KEY_INTERROGATION,
     KEY_EXCLAMATION,
@@ -26,8 +27,8 @@ enum KEY\
     KEY_BRACKET_B_R,
     KEY_BRACKET_C_L,
     KEY_BRACKET_C_R,
-    KEY_BRACKET_A_L,
-    KEY_BRACKET_A_R,
+    KEY_LESSER,
+    KEY_GREATER,
     KEY_PERCENT,
     KEY_PIPE,
     KEY_AMPERSAND,
@@ -37,7 +38,6 @@ enum KEY\
     KEY_RESERVED_WORD_ELSE,
     KEY_RESERVED_WORD_INT,
     KEY_RESERVED_WORD_DOUBLE,
-    KEY_RESERVED_WORD_FLOAT,
     KEY_RESERVED_WORD_CHAR,
     KEY_RESERVED_WORD_BOOL,
     KEY_RESERVED_WORD_WHILE,
@@ -105,7 +105,6 @@ id ({alpha}|_)(_|{alphanum})*
 "else"                  { COMPACTER; return KEY_RESERVED_WORD_ELSE; }
 "int"                   { COMPACTER; return KEY_RESERVED_WORD_INT; }
 "double"                { COMPACTER; return KEY_RESERVED_WORD_DOUBLE; }
-"float"                 { COMPACTER; return KEY_RESERVED_WORD_FLOAT; }
 "char"                  { COMPACTER; return KEY_RESERVED_WORD_CHAR; }
 "bool"                  { COMPACTER; return KEY_RESERVED_WORD_BOOL; }
 "while"                 { COMPACTER; return KEY_RESERVED_WORD_WHILE; }
@@ -125,11 +124,13 @@ id ({alpha}|_)(_|{alphanum})*
                             COMPACTER;
                             if(identation == lastIdent) return KEY_ERROR;
                         }
-{di}                    { COMPACTER; return KEY_ERROR; }
-{inteiro}               { COMPACTER; return KEY_INTEGER; }
-{real}                  { COMPACTER; return KEY_REAL; }
-{id}                    { COMPACTER; return KEY_ID; }
+"=="                    { COMPACTER; return KEY_IS_EQUAL; }
+"!="                    { COMPACTER; return KEY_IS_NOT_EQUAL; }
+"<="                    { COMPACTER; return KEY_LESSER_EQUAL; }
+">="                    { COMPACTER; return KEY_GREATER_EQUAL; }
 "="                     { COMPACTER; return KEY_EQUAL; }
+"<"                     { COMPACTER; return KEY_LESSER; }
+">"                     { COMPACTER; return KEY_GREATER; }
 "+"                     { COMPACTER; return KEY_PLUS; }
 "-"                     { COMPACTER; return KEY_MINUS; }
 "*"                     { COMPACTER; return KEY_ASTERISK; }
@@ -139,6 +140,7 @@ id ({alpha}|_)(_|{alphanum})*
 "%"                     { COMPACTER; return KEY_PERCENT; }
 "|"                     { COMPACTER; return KEY_PIPE; }
 "&"                     { COMPACTER; return KEY_AMPERSAND; }
+","                     { COMPACTER; return KEY_COMMA; }
 ":"                     { COMPACTER; return KEY_COLON; }
 "?"                     { COMPACTER; return KEY_INTERROGATION; }
 "!"                     { COMPACTER; return KEY_EXCLAMATION; } 
@@ -148,8 +150,10 @@ id ({alpha}|_)(_|{alphanum})*
 "]"                     { COMPACTER; return KEY_BRACKET_B_R; }
 "{"                     { COMPACTER; return KEY_BRACKET_C_L; }
 "}"                     { COMPACTER; return KEY_BRACKET_C_R; }
-"<"                     { COMPACTER; return KEY_BRACKET_A_L; }
-">"                     { COMPACTER; return KEY_BRACKET_A_R; }
+{di}                    { COMPACTER; return KEY_ERROR; }
+{inteiro}               { COMPACTER; return KEY_INTEGER; }
+{real}                  { COMPACTER; return KEY_REAL; }
+{id}                    { COMPACTER; return KEY_ID; }
 \n                      { yycolumnno = 0; identation = 0; return KEY_LINEBREAK; }
 .                       { ; }
 
@@ -196,7 +200,6 @@ void getMessage(int codigo)
         case KEY_RESERVED_WORD_ELSE:    sprintf(buffer, "Palavra chave:");                   break;
         case KEY_RESERVED_WORD_INT:     sprintf(buffer, "Palavra chave:");                   break;
         case KEY_RESERVED_WORD_DOUBLE:  sprintf(buffer, "Palavra chave:");                   break;
-        case KEY_RESERVED_WORD_FLOAT:   sprintf(buffer, "Palavra chave:");                   break;
         case KEY_RESERVED_WORD_CHAR:    sprintf(buffer, "Palavra chave:");                   break;
         case KEY_RESERVED_WORD_BOOL:    sprintf(buffer, "Palavra chave:");                   break;
         case KEY_RESERVED_WORD_WHILE:   sprintf(buffer, "Palavra chave:");                   break;
@@ -215,6 +218,7 @@ void getMessage(int codigo)
         case KEY_PIPE:                  sprintf(buffer, "Simbolo: Pipe");                    break;
         case KEY_AMPERSAND:             sprintf(buffer, "Simbolo: Ampersand");               break;
         case KEY_COLON:                 sprintf(buffer, "Simbolo: Dois pontos");             break;
+        case KEY_COMMA:                 sprintf(buffer, "Simbolo: Virgula");                 break;
         case KEY_INTERROGATION:         sprintf(buffer, "Simbolo: Interrogacao");            break;
         case KEY_EXCLAMATION:           sprintf(buffer, "Simbolo: Exclamacao");              break;
         case KEY_BRACKET_R_L:           sprintf(buffer, "Abre Parenteses");                  break;
@@ -223,8 +227,8 @@ void getMessage(int codigo)
         case KEY_BRACKET_B_R:           sprintf(buffer, "Fecha Chaves");                     break;
         case KEY_BRACKET_C_L:           sprintf(buffer, "Abre Colchetes");                   break;
         case KEY_BRACKET_C_R:           sprintf(buffer, "Fecha Colchetes");                  break;
-        case KEY_BRACKET_A_L:           sprintf(buffer, "Abre Angulos");                     break;
-        case KEY_BRACKET_A_R:           sprintf(buffer, "Fecha Angulos");                    break;
+        case KEY_LESSER:           sprintf(buffer, "Abre Angulos");                     break;
+        case KEY_GREATER:           sprintf(buffer, "Fecha Angulos");                    break;
         case KEY_LINEBREAK:             sprintf(buffer, "Quebra de linha");                  break;
         case KEY_MORE_IDENTATION:       sprintf(buffer, "Inicio de bloco: #%d -> #%d", lastIdent, identation); break;
         case KEY_LESS_IDENTATION:       sprintf(buffer, "Fim de bloco: #%d -> #%d", lastIdent, identation);     break;

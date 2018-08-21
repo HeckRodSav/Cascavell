@@ -1,4 +1,4 @@
 # Lista de afazeres
 
 - [ ] flag de compilação para testes
-- [ ] colocar os símbolos e palavras reservadas no readme
+- [x] colocar os símbolos e palavras reservadas no readme

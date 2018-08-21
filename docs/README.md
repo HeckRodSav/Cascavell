@@ -23,7 +23,7 @@ Neste repositório se encontram as especificações do analisador léxico e sint
 
 ### Símbolos e palavras reservadas
 
-A linguagem conta com operadores bit-a-bit, operadores lógicos e operadores aritméticos:
+A linguagem conta com operadores bit-a-bit, operadores lógicos e operadores aritméticos. Os operadores tem sua precedência definida baseados na linguagem C:
 
 |Símbolo|Descrição|Símbolo|Descrição|
 |:-----:|:--------|:-----:|:--------|
@@ -41,6 +41,36 @@ A linguagem conta com operadores bit-a-bit, operadores lógicos e operadores ari
 |^|XOR lógico bit-a-bit|{|Abre chave|
 |~|Negação lógica bit-a-bit|}|Fecha chave|
 
+
+|Nível de precedência|Operador|Grupo|Descrição|
+|:------------------:|:------:|:---:|:--------|
+| 1  | ( )  |  | |
+| 1  | [ ]  |  | |
+| 1  | { }  |  | |
+| 2  | !    | Lógico | Negação lógica |
+| 2  | ~    | Bit-a-bit | Negação bit-a-bit |
+| 3  | *    | Aritmético | Multiplicação |
+| 3  | /    | Aritmético | Divisão |
+| 3  | %    | Aritmético | Resto da divisão |
+| 4  | +    | Aritmético | Soma |
+| 4  | -    | Aritmético | Subtração |
+| 5  | >=   | Lógico | Relação de ordem |
+| 5  | <=   | Lógico | Relação de ordem |
+| 5  | >    | Lógico | Relação de ordem |
+| 5  | <    | Lógico | Relação de ordem |
+| 6  | !=   | Lógico | Comparação de desigualdade |
+| 6  | ==   | Lógico | Comparação de igualdade |
+| 7  | &    | Bit-a-bit | AND bit-a-bit |
+| 8  | ^    | Bit-a-bit | XOR bit-a-bit |
+| 9  | \|   | Bit-a-bit | OR bit-a-bit |
+| 10 | &&   | Lógico | AND lógico |
+| 11 | \|\| | Lógico | OR lógico |
+| 12 | ?:   | Aritmético | Operador de atribuição condicional (ternário) |
+| 13 | =    | Aritmético | Atribuição |
+| 14 | ,    | | |
+
+Onde o nível de precedência vai de 1 a 14, 1 sendo a maior precedência possível.
+
 As palavras reservadas são utilizadas para definir tipos de variáveis e funções e realizar controle do fluxo do programa:
 
 |Palavra reservada|Descrição|
@@ -56,6 +86,11 @@ As palavras reservadas são utilizadas para definir tipos de variáveis e funç�
 |return|Instrução de retorno de valor para uma função|
 |end|Delimitador de fim de bloco indentado|
 
+### Sintáxe da linguagem
+
+A linguagem requer o uso de parênteses caso precise de aninhamento de operadores ternários.
+
+Funções devem ter uma linha em branco entre suas definições.
 
 ---
 

@@ -59,7 +59,10 @@ condicional : KEY_RESERVED_WORD_IF logic KEY_COLON cmd elser \
                 }
             ;
 
-elser   :   { $$ = NULL;}
+elser   : /* Lambda */
+            {
+                $$ = NULL;
+            }
         | KEY_RESERVED_WORD_ELSE cmd \
             {
                 $$ = newStatementNode(_Else);
@@ -67,18 +70,31 @@ elser   :   { $$ = NULL;}
             }
         ;
 
-aritim : 
-       ;  
-              
-logic : KEY_RESERVED_WORD_TRUE { }   /* True */
-      | KEY_RESERVED_WORD_FALSE { }  /* False */
-      | logic KEY_IS_EQUAL logic { }  /* == */
-      | logic KEY_IS_NOT_EQUAL logic { }  /* != */
-      | logic KEY_OR logic { }  /* || */
-      | logic KEY_AND logic { }  /* && */
-      | logic KEY_AND logic { }  /* && */
-      | KEY_BRACKET_R_L logic KEY_BRACKET_R_R { } /* (logic) */
-      ;
+aritim  : 
+        | aritim KEY_PLUS aritim { } /* a + b */
+        | aritim KEY_MINUS aritim { } /* a - b */
+        | aritim KEY_ASTERISK aritim { } /* a * b */
+        | aritim KEY_SLASH aritim { } /* a / b */
+        | aritim KEY_PERCENT aritim { } /* a % b */
+        ;  
+
+logic   : KEY_BRACKET_R_L logic KEY_BRACKET_R_R { } /* (a) */
+        | KEY_RESERVED_WORD_TRUE { }   /* True */
+        | KEY_RESERVED_WORD_FALSE { }  /* False */
+        | logic KEY_IS_EQUAL logic { }  /* a == b */
+        | logic KEY_IS_NOT_EQUAL logic { }  /* a != b */
+        | loigc KEY_LESSER_EQUAL logic { } /* a <= b */
+        | loigc KEY_GREATER_EQUAL logic { } /* a >= b */
+        | loigc KEY_LESSER logic { } /* a < b */
+        | loigc KEY_GREATER logic { } /* a > b */
+        | logic KEY_OR logic { }  /* a || b */
+        | logic KEY_AND logic { }  /* a && b */
+        | KEY_PIPE logic { } /* a | b */
+        | KEY_AMPERSAND logic { } /* a & b */
+        | KEY_EXCLAMATION logic { } /* !a */
+        | KEY_CARET logic { } /* ^a */
+        | KEY_TILDE logic { } /* ~a */
+        ;
 
 cmd : /**/
     | KEY_MORE_IDENTATION cmd KEY_LESS_IDENTATION { }

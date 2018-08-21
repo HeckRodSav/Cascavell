@@ -1,22 +1,18 @@
-isso é um arquivo de testes
-//Comentário de teste
-if isso 
-    aquilo
-else
-    aquilo_outro
-Só um caso
-(e os parênteses?)
-[então as chaves?]
-{e aqueles colchetes?}
-<isso é um divsor?>
-123
--456
-+789
-var135
-246try
-12eférf4123
-/*Comentário1*/ ident
-break
-/* Comentário de
-várias linhas
-*/
+int main():
+    int a = 50, b = 0, c = 0
+    while a != 1:
+        b = ( a % 2 == 0 ) ? a / 2 : 3 * a + 1
+        while a != b:
+            if a > b:
+
+                a -= b
+            else:
+                b -= a
+            end //if ends here
+        end //while ends here
+        c = a
+        print(c)
+        a = b
+    end //while ends here
+    return 0
+end //function ends here

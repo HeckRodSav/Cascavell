@@ -2,8 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "cascavell.yacc.h"
 #include "stack.h"
 
+/*
 enum KEY\
 {
     KEY_ERROR,
@@ -45,6 +47,7 @@ enum KEY\
     KEY_MORE_IDENTATION,
     KEY_LESS_IDENTATION,
 };
+*/
 
 /*contadores para usar identacao como marcador*/
 int blankCount = 0;
@@ -53,7 +56,9 @@ int lastIdent = 0;
 int yycolumnno = 0;
 int lastTkSize = 0;
 
+#ifndef BUFFER_SIZE
 #define BUFFER_SIZE 50
+#endif
 char buffer[BUFFER_SIZE];
 
 Stack tabulationStack;
@@ -67,15 +72,15 @@ void getMessage(int codigo);
 %option noyywrap
 %option yylineno
 
-vazio [[:blank:]]+
+vazio      [[:blank:]]+
 diacritico [\xC0-\xD6\xD8-\xDD\xE0-\xF5\xF8-\xFD\xFF]
-alpha ([[:alpha:]]|{diacritico})
-alphanum ({alpha}|[[:digit:]])
-di ([[:digit:]])+(_|{alphanum})+
-inteiro ([[:digit:]])+
-exponente [eE][+-]?{inteiro}
-real {inteiro}("."{inteiro})?{exponente}?
-id ({alpha}|_)(_|{alphanum})*
+alpha      ([[:alpha:]]|{diacritico})
+alphanum   ({alpha}|[[:digit:]])
+di         ([[:digit:]])+(_|{alphanum})+
+inteiro    ([[:digit:]])+
+exponente  [eE][+-]?{inteiro}
+real       {inteiro}("."{inteiro})?{exponente}?
+id         ({alpha}|_)(_|{alphanum})*
 
 %%
 
@@ -124,10 +129,14 @@ id ({alpha}|_)(_|{alphanum})*
                             COMPACTER;
                             if(identation == lastIdent) return KEY_ERROR;
                         }
+"true"                  { COMPACTER; return KEY_RESERVED_WORD_TRUE; }
+"false"                 { COMPACTER; return KEY_RESERVED_WORD_FALSE; }
 "=="                    { COMPACTER; return KEY_IS_EQUAL; }
 "!="                    { COMPACTER; return KEY_IS_NOT_EQUAL; }
+"||"                    { COMPACTER; return KEY_OR; }
 "<="                    { COMPACTER; return KEY_LESSER_EQUAL; }
 ">="                    { COMPACTER; return KEY_GREATER_EQUAL; }
+"&&"                    { COMPACTER; return KEY_AND; }
 "="                     { COMPACTER; return KEY_EQUAL; }
 "<"                     { COMPACTER; return KEY_LESSER; }
 ">"                     { COMPACTER; return KEY_GREATER; }
@@ -161,6 +170,7 @@ id ({alpha}|_)(_|{alphanum})*
 
 %%
 
+/*
 int main( const int argc, const char *argv[ ])
 {
     char localBuff[BUFFER_SIZE] = "Cascavell_Compilation";
@@ -188,7 +198,9 @@ int main( const int argc, const char *argv[ ])
     fprintf(stderr, "Done\a\n");
     return 0;
 }
+*/
 
+/*
 void getMessage(int codigo)
 {
     memset(buffer, '\0' ,BUFFER_SIZE);
@@ -235,3 +247,4 @@ void getMessage(int codigo)
         default:                        sprintf(buffer, "Desconhecido");                     break;
     }
 }
+*/

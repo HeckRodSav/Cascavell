@@ -7,6 +7,7 @@ PARSER_EXTEND = yacc.$(EXTEND)
 PARSER = $(NAME).$(PARSER_EXTEND).Y
 PARSER_C = $(NAME).$(PARSER_EXTEND)
 RUNNER = $(NAME).$(EXTEND).run
+RUNNER_DEPENDENCES = stack.c syntaxTree.c
 FLEX = flex
 YACC = bison
 GCC = gcc
@@ -21,7 +22,7 @@ $(PARSER_C) : $(PARSER) $(LEXER)
 $(LEXER_C) : $(LEXER) $(PARSER_C)
 	$(FLEX) -o $@ $< ;
 
-$(RUNNER) : $(PARSER_C) $(LEXER_C) stack.c
+$(RUNNER) : $(PARSER_C) $(LEXER_C) $(RUNNER_DEPENDENCES)
 	$(GCC) $^ -o $@ $(CFLAGS);
 
 examples: $(RUNNER)

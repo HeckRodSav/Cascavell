@@ -1,13 +1,34 @@
-#define MAXCHILDREN 4
+#include "syntaxTree.h"
 
-typedef enum {Int, Double, Char, Bool} typeOfReturn;
+TreeNode* newGenericNode()
+{
+    TreeNode * t = (TreeNode *) malloc(sizeof(TreeNode));
+    if (t == NULL) fprintf(yyout, "Out of memory error at line %d\n", yylineno);
+    else 
+    {
+        int i;
+        for (i=0; i<SUBNODES; i++) t -> subNode[i] = NULL;
+    }
+    return t;
+}
 
-typedef struct{
-    functionNode *children[MAXCHILDREN];
+TreeNode* newStatementNode(StatementFamily memberType)
+{
+    TreeNode * tmp = newGenericNode();
+    tmp -> family = _Statement;
+    tmp -> member.statement =  memberType;
+}
 
-    int intRetValue;
-    double doubleRetValue;
-    char charRetValue;
-    bool boolRetValue;
+TreeNode* newExpressionNode(ExpressionFamily  memberType)
+{
+    TreeNode * tmp = newGenericNode();
+    tmp -> family = _Expression;
+    tmp -> member.expression =  memberType;
+}
 
-} functionNode;
+TreeNode* newDeclarationNode(DeclarationFamily  memberType)
+{
+    TreeNode * tmp = newGenericNode();
+    tmp -> family = _Declaration;
+    tmp -> member.declaration =  memberType;
+}

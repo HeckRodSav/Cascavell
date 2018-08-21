@@ -1,9 +1,10 @@
 %{
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <math.h>
 #include "stack.h"
+#include "syntaxTree.h"
   
 /* na verdade ele adicio ao lexico um código gerado pelo sintatico*/
 
@@ -30,31 +31,41 @@ extern Stack tabulationStack;
 %}
 
 
-%start entrada
-%token KEY_ERROR
-%token KEY_ID KEY_INTEGER KEY_REAL
-%right KEY_EQUAL
-%left  KEY_IS_EQUAL KEY_IS_NOT_EQUAL KEY_LESSER_EQUAL KEY_GREATER_EQUAL KEY_LESSER KEY_GREATER KEY_OR KEY_AND
-%left  KEY_PLUS KEY_MINUS
-%left  KEY_ASTERISK KEY_SLASH KEY_PERCENT
-%left  KEY_EXCLAMATION KEY_CARET KEY_TILDE KEY_PIPE KEY_AMPERSAND KEY_COMMA
-%left  KEY_COLON KEY_INTERROGATION
-%token KEY_LINEBREAK
-%token KEY_BRACKET_R_L KEY_BRACKET_R_R KEY_BRACKET_B_L KEY_BRACKET_B_R KEY_BRACKET_C_L KEY_BRACKET_C_R
-%token KEY_MORE_IDENTATION KEY_LESS_IDENTATION
-%token KEY_RESERVED_WORD_VOID KEY_RESERVED_WORD_IF KEY_RESERVED_WORD_ELSE KEY_RESERVED_WORD_INT KEY_RESERVED_WORD_DOUBLE KEY_RESERVED_WORD_FLOAT KEY_RESERVED_WORD_CHAR KEY_RESERVED_WORD_BOOL KEY_RESERVED_WORD_WHILE KEY_RESERVED_WORD_RETURN KEY_RESERVED_WORD_TRUE KEY_RESERVED_WORD_FALSE
+%start    entrada
+%token    KEY_ERROR
+%token    KEY_ID    KEY_INTEGER    KEY_REAL
+%right    KEY_EQUAL
+%left     KEY_IS_EQUAL    KEY_IS_NOT_EQUAL    KEY_LESSER_EQUAL    KEY_GREATER_EQUAL    KEY_LESSER    KEY_GREATER    KEY_OR    KEY_AND
+%left     KEY_PLUS    KEY_MINUS
+%left     KEY_ASTERISK    KEY_SLASH    KEY_PERCENT
+%left     KEY_EXCLAMATION    KEY_CARET    KEY_TILDE    KEY_PIPE    KEY_AMPERSAND    KEY_COMMA
+%left     KEY_COLON    KEY_INTERROGATION
+%token    KEY_LINEBREAK
+%token    KEY_BRACKET_R_L    KEY_BRACKET_R_R    KEY_BRACKET_B_L    KEY_BRACKET_B_R    KEY_BRACKET_C_L    KEY_BRACKET_C_R
+%token    KEY_MORE_IDENTATION    KEY_LESS_IDENTATION
+%token    KEY_RESERVED_WORD_VOID    KEY_RESERVED_WORD_IF    KEY_RESERVED_WORD_ELSE    KEY_RESERVED_WORD_INT    KEY_RESERVED_WORD_DOUBLE    KEY_RESERVED_WORD_FLOAT    KEY_RESERVED_WORD_CHA   R KEY_RESERVED_WORD_BOOL    KEY_RESERVED_WORD_WHILE    KEY_RESERVED_WORD_RETURN    KEY_RESERVED_WORD_TRUE    KEY_RESERVED_WORD_FALSE
 
 
 %%
 entrada : /* vazia */
         ;
 
-condicional : KEY_RESERVED_WORD_IF logic KEY_COLON cmd elser {  }
+condicional : KEY_RESERVED_WORD_IF logic KEY_COLON cmd elser \
+                {
+                $$ = newStatementNode(_If);
+                $$ -> subNode[0] = $2;
+                $$ -> subNode[1] = $4;
+                $$ -> subNode[2] = $2;
+                }
             ;
 
-elser : /*vazio*/
-      | KEY_RESERVED_WORD_ELSE cmd { }
-      ;
+elser   :   { $$ = NULL;}
+        | KEY_RESERVED_WORD_ELSE cmd \
+            {
+                $$ = newStatementNode(_Else);
+                $$ = subNode[0] = $2;
+            }
+        ;
 
 aritim : 
        ;  

@@ -71,15 +71,62 @@ elser   : /* Lambda */
             }
         ;
 
+
+
+assigner    : ternary { $$ = NULL; } /* A = B */
+            | assigner KEY_EQUAL ternary { $$ = NULL; }
+            ;
+
+ternary     : logicOr { $$ = NULL; } /* A = B */
+            ;
+
+logicOr     : logicAnd { $$ = NULL; } /* A = B */
+            | logicOr KEY_OR logicAnd { $$ = NULL; }  /* a || b */
+            ;
+
+logicAnd    : bitwiseOr { $$ = NULL; } /* A = B */
+            | logicAnd KEY_AND bitwiseOr { $$ = NULL; }  /* a && b */
+            ;
+
+bitwiseOr   : bitwiseXor { $$ = NULL; } /* A = B */
+            | KEY_PIPE bitwiseOr { $$ = NULL; } /* a | b */
+            ;
+
+bitwiseXor  : bitwiseAnd { $$ = NULL; } /* A = B */
+            | KEY_CARET bitwiseXor { $$ = NULL; } /* ^a */
+            ;
+
+bitwiseAnd  : relatEqual { $$ = NULL; } /* A = B */
+            | KEY_AMPERSAND bitwiseAnd { $$ = NULL; } /* a & b */
+            ;
+
+relatEqual  : relatOrder { $$ = NULL; } /* A = B */
+            | relatEqual KEY_IS_EQUAL relatOrder { $$ = NULL; }  /* a == b */
+            | relatEqual KEY_IS_NOT_EQUAL relatOrder { $$ = NULL; }  /* a != b */
+            ;
+            
+
+relatOrder  : plusMinus { $$ = NULL; } /* A = B */
+            | relatOrder KEY_LESSER_EQUAL plusMinus { $$ = NULL; } /* a <= b */
+            | relatOrder KEY_GREATER_EQUAL plusMinus { $$ = NULL; } /* a >= b */
+            | relatOrder KEY_LESSER plusMinus { $$ = NULL; } /* a < b */
+            | relatOrder KEY_GREATER plusMinus { $$ = NULL; } /* a > b */
+            ;
+
 plusMinus   : multDiv { $$ = NULL; } /* A = B */
             | plusMinus KEY_PLUS    multDiv { $$ = NULL; } /* A = A + B */
             | plusMinus KEY_MINUS   multDiv { $$ = NULL; } /* A = A - B */
             ;
 
-multDiv     : negPos { $$ = NULL; } /* A = B */
-            | multDiv KEY_ASTERISK  negPos { $$ = NULL; } /* A = A * B */
-            | multDiv KEY_SLASH     negPos { $$ = NULL; } /* A = A / B */
-            | multDiv KEY_PERCENT   negPos { $$ = NULL; } /* A = A % B */
+multDiv     : logicNot { $$ = NULL; } /* A = B */
+            | multDiv KEY_ASTERISK  logicNot { $$ = NULL; } /* A = A * B */
+            | multDiv KEY_SLASH     logicNot { $$ = NULL; } /* A = A / B */
+            | multDiv KEY_PERCENT   logicNot { $$ = NULL; } /* A = A % B */
+            ;
+
+logicNot    : negPos { $$ = NULL;} /* A = B */
+            | KEY_EXCLAMATION negPos { $$ = NULL; } /* !a */
+            | KEY_TILDE negPos { $$ = NULL; } /* ~a */
             ;
 
 negPos      : paren { $$ = NULL; } /* A = B */
@@ -94,25 +141,10 @@ thing       :
             ;  
 
 id          :
+            | KEY_RESERVED_WORD_TRUE { $$ = NULL; }   /* True */
+            | KEY_RESERVED_WORD_FALSE { $$ = NULL; }  /* False */
             ;
-
-logic   : KEY_BRACKET_R_L logic KEY_BRACKET_R_R { $$ = NULL; } /* (a) */
-        | KEY_RESERVED_WORD_TRUE { $$ = NULL; }   /* True */
-        | KEY_RESERVED_WORD_FALSE { $$ = NULL; }  /* False */
-        | logic KEY_IS_EQUAL logic { $$ = NULL; }  /* a == b */
-        | logic KEY_IS_NOT_EQUAL logic { $$ = NULL; }  /* a != b */
-        | logic KEY_LESSER_EQUAL logic { $$ = NULL; } /* a <= b */
-        | logic KEY_GREATER_EQUAL logic { $$ = NULL; } /* a >= b */
-        | logic KEY_LESSER logic { $$ = NULL; } /* a < b */
-        | logic KEY_GREATER logic { $$ = NULL; } /* a > b */
-        | logic KEY_OR logic { $$ = NULL; }  /* a || b */
-        | logic KEY_AND logic { $$ = NULL; }  /* a && b */
-        | KEY_PIPE logic { $$ = NULL; } /* a | b */
-        | KEY_AMPERSAND logic { $$ = NULL; } /* a & b */
-        | KEY_EXCLAMATION logic { $$ = NULL; } /* !a */
-        | KEY_CARET logic { $$ = NULL; } /* ^a */
-        | KEY_TILDE logic { $$ = NULL; } /* ~a */
-        ;
+            
 
 cmd : /**/
     | KEY_MORE_IDENTATION cmd KEY_LESS_IDENTATION { $$ = NULL; }

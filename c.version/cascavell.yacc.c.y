@@ -19,6 +19,7 @@ extern int yylineno, yycolumnno;
 extern char* yytext;
 extern FILE *yyin;
 extern FILE *yyout;
+FILE *logger;
 
 extern char buffer[];
 extern int blankCount;
@@ -43,14 +44,14 @@ extern Stack tabulationStack;
 %token    KEY_LINEBREAK
 %token    KEY_BRACKET_R_L    KEY_BRACKET_R_R    KEY_BRACKET_B_L    KEY_BRACKET_B_R    KEY_BRACKET_C_L    KEY_BRACKET_C_R
 %token    KEY_MORE_IDENTATION    KEY_LESS_IDENTATION
-%token    KEY_RESERVED_WORD_VOID    KEY_RESERVED_WORD_IF    KEY_RESERVED_WORD_ELSE    KEY_RESERVED_WORD_INT    KEY_RESERVED_WORD_DOUBLE    KEY_RESERVED_WORD_FLOAT    KEY_RESERVED_WORD_CHA   R KEY_RESERVED_WORD_BOOL    KEY_RESERVED_WORD_WHILE    KEY_RESERVED_WORD_RETURN    KEY_RESERVED_WORD_TRUE    KEY_RESERVED_WORD_FALSE
+%token    KEY_RESERVED_WORD_VOID    KEY_RESERVED_WORD_IF    KEY_RESERVED_WORD_ELSE    KEY_RESERVED_WORD_INT    KEY_RESERVED_WORD_DOUBLE    KEY_RESERVED_WORD_FLOAT    KEY_RESERVED_WORD_CHAR    KEY_RESERVED_WORD_BOOL    KEY_RESERVED_WORD_WHILE    KEY_RESERVED_WORD_RETURN    KEY_RESERVED_WORD_TRUE    KEY_RESERVED_WORD_FALSE
 
 
 %%
 entrada : /* vazia */
         ;
 
-condicional : KEY_RESERVED_WORD_IF logic KEY_COLON cmd elser \
+condicional : KEY_RESERVED_WORD_IF logic KEY_COLON cmd elser 
                 {
                 $$ = newStatementNode(_If);
                 $$ -> subNode[0] = $2;
@@ -63,43 +64,60 @@ elser   : /* Lambda */
             {
                 $$ = NULL;
             }
-        | KEY_RESERVED_WORD_ELSE cmd \
+        | KEY_RESERVED_WORD_ELSE cmd 
             {
                 $$ = newStatementNode(_Else);
                 $$ = subNode[0] = $2;
             }
         ;
 
-aritim  : 
-        | aritim KEY_PLUS aritim { } /* a + b */
-        | aritim KEY_MINUS aritim { } /* a - b */
-        | aritim KEY_ASTERISK aritim { } /* a * b */
-        | aritim KEY_SLASH aritim { } /* a / b */
-        | aritim KEY_PERCENT aritim { } /* a % b */
-        ;  
+plusMinus   : multDiv { $$ = NULL; } /* A = B */
+            | plusMinus KEY_PLUS    multDiv { $$ = NULL; } /* A = A + B */
+            | plusMinus KEY_MINUS   multDiv { $$ = NULL; } /* A = A - B */
+            ;
 
-logic   : KEY_BRACKET_R_L logic KEY_BRACKET_R_R { } /* (a) */
-        | KEY_RESERVED_WORD_TRUE { }   /* True */
-        | KEY_RESERVED_WORD_FALSE { }  /* False */
-        | logic KEY_IS_EQUAL logic { }  /* a == b */
-        | logic KEY_IS_NOT_EQUAL logic { }  /* a != b */
-        | loigc KEY_LESSER_EQUAL logic { } /* a <= b */
-        | loigc KEY_GREATER_EQUAL logic { } /* a >= b */
-        | loigc KEY_LESSER logic { } /* a < b */
-        | loigc KEY_GREATER logic { } /* a > b */
-        | logic KEY_OR logic { }  /* a || b */
-        | logic KEY_AND logic { }  /* a && b */
-        | KEY_PIPE logic { } /* a | b */
-        | KEY_AMPERSAND logic { } /* a & b */
-        | KEY_EXCLAMATION logic { } /* !a */
-        | KEY_CARET logic { } /* ^a */
-        | KEY_TILDE logic { } /* ~a */
+multDiv     : negPos { $$ = NULL; } /* A = B */
+            | multDiv KEY_ASTERISK  negPos { $$ = NULL; } /* A = A * B */
+            | multDiv KEY_SLASH     negPos { $$ = NULL; } /* A = A / B */
+            | multDiv KEY_PERCENT   negPos { $$ = NULL; } /* A = A % B */
+            ;
+
+negPos      : paren { $$ = NULL; } /* A = B */
+            | KEY_PLUS negPos { $$ = NULL; } /* A = +A */
+            | KEY_MINUS  negPos { $$ = NULL; } /* A = -A */
+            ;
+
+paren       : id { $$ = NULL; } /* A = a */
+            | KEY_BRACKET_R_L thing KEY_BRACKET_R_R { $$=NULL; } /* A=(B) */
+
+thing       : 
+            ;  
+
+id          :
+            ;
+
+logic   : KEY_BRACKET_R_L logic KEY_BRACKET_R_R { $$ = NULL; } /* (a) */
+        | KEY_RESERVED_WORD_TRUE { $$ = NULL; }   /* True */
+        | KEY_RESERVED_WORD_FALSE { $$ = NULL; }  /* False */
+        | logic KEY_IS_EQUAL logic { $$ = NULL; }  /* a == b */
+        | logic KEY_IS_NOT_EQUAL logic { $$ = NULL; }  /* a != b */
+        | logic KEY_LESSER_EQUAL logic { $$ = NULL; } /* a <= b */
+        | logic KEY_GREATER_EQUAL logic { $$ = NULL; } /* a >= b */
+        | logic KEY_LESSER logic { $$ = NULL; } /* a < b */
+        | logic KEY_GREATER logic { $$ = NULL; } /* a > b */
+        | logic KEY_OR logic { $$ = NULL; }  /* a || b */
+        | logic KEY_AND logic { $$ = NULL; }  /* a && b */
+        | KEY_PIPE logic { $$ = NULL; } /* a | b */
+        | KEY_AMPERSAND logic { $$ = NULL; } /* a & b */
+        | KEY_EXCLAMATION logic { $$ = NULL; } /* !a */
+        | KEY_CARET logic { $$ = NULL; } /* ^a */
+        | KEY_TILDE logic { $$ = NULL; } /* ~a */
         ;
 
 cmd : /**/
-    | KEY_MORE_IDENTATION cmd KEY_LESS_IDENTATION { }
-    | cmd KEY_LINEBREAK cmd {}
-    | condicional { }
+    | KEY_MORE_IDENTATION cmd KEY_LESS_IDENTATION { $$ = NULL; }
+    | cmd KEY_LINEBREAK cmd { $$ = NULL; }
+    | condicional { $$ = NULL; }
     ;
 
 %%
@@ -117,7 +135,7 @@ int main( const int argc, const char *argv[ ])
         if (argc >= 3) yyout = fopen(argv[2], "w");
     }
     sprintf(buffer, "%sc.log", localBuff);
-    FILE *logger = fopen(buffer, "w");
+    logger = fopen(buffer, "w");
 
     memset(buffer, '\0' ,BUFFER_SIZE);
     int codigo;

@@ -13,6 +13,8 @@
 #define BUFFER_SIZE 50
 #endif
 
+#define YYSTYPE TreeNode*
+
 void yyerror(char *);
 extern int yylex();
 extern int yylineno, yycolumnno;
@@ -28,6 +30,8 @@ extern int lastIdent;
 extern int lastTkSize;
 
 extern Stack tabulationStack;
+
+TreeNode* treeRoot;
 
 %}
 
@@ -48,10 +52,32 @@ extern Stack tabulationStack;
 
 
 %%
-entrada : /* vazia */
-        ;
+entrada:      cmdBlock {treeRoot = $1; }/* vazia */
+            ;
 
-conditional : KEY_RESERVED_WORD_IF operation KEY_COLON cmdBlock elser 
+declaration:  KEY_RESERVED_WORD_INT     id
+                {
+                    $$ = newDeclarationNode(__Int);
+                    $$ -> subNode[0] = $2;
+                }
+            | KEY_RESERVED_WORD_DOUBLE  id
+                {
+                    $$ = newDeclarationNode(__Double);
+                    $$ -> subNode[0] = $2;
+                }
+            | KEY_RESERVED_WORD_CHAR    id
+                {
+                    $$ = newDeclarationNode(__Char);
+                    $$ -> subNode[0] = $2;
+                }
+            | KEY_RESERVED_WORD_DOUBLE  id
+                {
+                    $$ = newDeclarationNode(__Bool);
+                    $$ -> subNode[0] = $2;
+                }
+            ;
+
+conditional:  KEY_RESERVED_WORD_IF operation KEY_COLON cmdBlock elser 
                 {
                     $$ = newStatementNode(_If);
                     $$ -> subNode[0] = $2;
@@ -60,18 +86,18 @@ conditional : KEY_RESERVED_WORD_IF operation KEY_COLON cmdBlock elser
                 }
             ;
 
-elser       : /* Lambda */
+elser:        /* Lambda */
                 {
                     $$ = NULL;
                 }
             | KEY_RESERVED_WORD_ELSE cmdBlock
                 {
                     $$ = newStatementNode(_Else);
-                    $$ = subNode[0] = $2;
+                    $$ -> subNode[0] = $2;
                 }
             ;
 
-repetition  : KEY_RESERVED_WORD_WHILE operation KEY_COLON cmdBlock
+repetition:   KEY_RESERVED_WORD_WHILE operation KEY_COLON cmdBlock
                 {
                     $$ = newStatementNode(_While);
                     $$ -> subNode[0] = $2;
@@ -79,92 +105,123 @@ repetition  : KEY_RESERVED_WORD_WHILE operation KEY_COLON cmdBlock
                 }
             ;
 
-returning   : KEY_RESERVED_WORD_RETURN operation
+returning:    KEY_RESERVED_WORD_RETURN operation
                 {
                     $$ = newStatementNode(_Return);
-                    $$ = subNode[0] = $2;
+                    $$ -> subNode[0] = $2;
                 }
             ;
 
-cmdBlock    : KEY_MORE_IDENTATION cmd KEY_LESS_IDENTATION { $$ = NULL; }
+cmdBlock:     KEY_MORE_IDENTATION cmd KEY_LESS_IDENTATION
+                {
+                    $$ = newExpressionNode(_Block);
+                    $$ -> subNode[0] = $2;
+                }
             ;
 
-cmd         : cmd KEY_LINEBREAK cmd { $$ = NULL; }
+cmd:          action KEY_LINEBREAK otherCmd { $$ = NULL; }
+                {
+                    $$ = newExpressionNode(_Command);
+                    $$ -> subNode[0] = $1;
+                    $$ -> subNode[1] = $3;
+
+                }
             | conditional { $$ = NULL; }
             ;
 
-
-operation   : assigner
+otherCmd:     /* A = Lambda */
+                {
+                    $$ = NULL;
+                }
+            | cmd 
+                {
+                    $$ = $1;
+                }
             ;
 
-assigner    : ternary { $$ = NULL; } /* A = B */
+action:       operation
+            | conditional
+            | repetition
+            | returning
+            | declaration
+            ;
+
+
+operation:    assigner { $$ = $1; }
+            ;
+
+assigner:     ternary { $$ = NULL; } /* A = B */
             | assigner KEY_EQUAL ternary { $$ = NULL; }
             ;
 
-ternary     : logicOr { $$ = NULL; } /* A = B */
-            | logicOr KEY_INTERROGATION ternary KEY_COLON ternary { $$ = NULL; } /* A = B ? A : A */
+ternary:      logicOr { $$ = NULL; } /* A = B */
+            | logicOr KEY_INTERROGATION ternary KEY_COLON ternary { $$ = NULL; } /* A = B ? A:    A */
             ;
 
-logicOr     : logicAnd { $$ = NULL; } /* A = B */
+logicOr:      logicAnd { $$ = NULL; } /* A = B */
             | logicOr KEY_OR logicAnd { $$ = NULL; }  /* a || b */
             ;
 
-logicAnd    : bitwiseOr { $$ = NULL; } /* A = B */
+logicAnd:     bitwiseOr { $$ = NULL; } /* A = B */
             | logicAnd KEY_AND bitwiseOr { $$ = NULL; }  /* a && b */
             ;
 
-bitwiseOr   : bitwiseXor { $$ = NULL; } /* A = B */
+bitwiseOr:    bitwiseXor { $$ = NULL; } /* A = B */
             | KEY_PIPE bitwiseOr { $$ = NULL; } /* a | b */
             ;
 
-bitwiseXor  : bitwiseAnd { $$ = NULL; } /* A = B */
+bitwiseXor:   bitwiseAnd { $$ = NULL; } /* A = B */
             | KEY_CARET bitwiseXor { $$ = NULL; } /* ^a */
             ;
 
-bitwiseAnd  : relatEqual { $$ = NULL; } /* A = B */
+bitwiseAnd:   relatEqual { $$ = NULL; } /* A = B */
             | KEY_AMPERSAND bitwiseAnd { $$ = NULL; } /* a & b */
             ;
 
-relatEqual  : relatOrder { $$ = NULL; } /* A = B */
+relatEqual:   relatOrder { $$ = NULL; } /* A = B */
             | relatEqual KEY_IS_EQUAL relatOrder { $$ = NULL; }  /* a == b */
             | relatEqual KEY_IS_NOT_EQUAL relatOrder { $$ = NULL; }  /* a != b */
             ;
             
 
-relatOrder  : plusMinus { $$ = NULL; } /* A = B */
+relatOrder:   plusMinus { $$ = NULL; } /* A = B */
             | relatOrder KEY_LESSER_EQUAL plusMinus { $$ = NULL; } /* a <= b */
             | relatOrder KEY_GREATER_EQUAL plusMinus { $$ = NULL; } /* a >= b */
             | relatOrder KEY_LESSER plusMinus { $$ = NULL; } /* a < b */
             | relatOrder KEY_GREATER plusMinus { $$ = NULL; } /* a > b */
             ;
 
-plusMinus   : multDiv { $$ = NULL; } /* A = B */
+plusMinus:    multDiv { $$ = NULL; } /* A = B */
             | plusMinus KEY_PLUS    multDiv { $$ = NULL; } /* A = A + B */
             | plusMinus KEY_MINUS   multDiv { $$ = NULL; } /* A = A - B */
             ;
 
-multDiv     : logicNot { $$ = NULL; } /* A = B */
+multDiv:      logicNot { $$ = NULL; } /* A = B */
             | multDiv KEY_ASTERISK  logicNot { $$ = NULL; } /* A = A * B */
             | multDiv KEY_SLASH     logicNot { $$ = NULL; } /* A = A / B */
             | multDiv KEY_PERCENT   logicNot { $$ = NULL; } /* A = A % B */
             ;
 
-logicNot    : negPos { $$ = NULL;} /* A = B */
+logicNot:     negPos { $$ = NULL;} /* A = B */
             | KEY_EXCLAMATION negPos { $$ = NULL; } /* !a */
             | KEY_TILDE negPos { $$ = NULL; } /* ~a */
             ;
 
-negPos      : paren { $$ = NULL; } /* A = B */
+negPos:       paren { $$ = NULL; } /* A = B */
             | KEY_PLUS negPos { $$ = NULL; } /* A = +A */
             | KEY_MINUS  negPos { $$ = NULL; } /* A = -A */
             ;
 
-paren       : id { $$ = NULL; } /* A = a */
+paren:        id { $$ = NULL; } /* A = a */
             | KEY_BRACKET_R_L operation KEY_BRACKET_R_R { $$=NULL; } /* A=(B) */
             ;
 
 
-id          :
+id:           KEY_ID
+                {
+                    $$ = newExpressionNode(_Id);
+                    $$ ->about.declName = yytext;
+                }
             | KEY_RESERVED_WORD_TRUE { $$ = NULL; }   /* True */
             | KEY_RESERVED_WORD_FALSE { $$ = NULL; }  /* False */
             ;

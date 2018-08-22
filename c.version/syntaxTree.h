@@ -11,8 +11,10 @@ extern int yylineno;
 
 typedef enum {_Statement, _Expression, _Declaration} nodeClass;
 typedef enum {_If, _Else, _While, _Assign, _Return} StatementFamily;
-typedef enum {_Logic, _Equation} ExpressionFamily;
-typedef enum {_Variable, _Function} DeclarationFamily;
+typedef enum {_Operation, _Block, _Command, _Id} ExpressionFamily;
+typedef enum {__Int, __Double, __Char, __Bool} DeclarationFamily;
+
+typedef int operationType;
 
 typedef struct treeNode{
     nodeClass family;
@@ -22,6 +24,11 @@ typedef struct treeNode{
         DeclarationFamily declaration;
     } member;
     struct treeNode * subNode[SUBNODES];
+    union
+    {
+        operationType oper;
+        char* declName;
+    } about;
 } TreeNode;
 
 TreeNode* newGenericNode();

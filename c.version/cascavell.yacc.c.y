@@ -52,7 +52,7 @@ TreeNode* treeRoot;
 
 
 %%
-entrada:      cmdBlock {treeRoot = $1; }/* vazia */
+entrada:      cmd {treeRoot = $1; }/* vazia */
             ;
 
 declaration:  KEY_RESERVED_WORD_INT     id
@@ -70,7 +70,7 @@ declaration:  KEY_RESERVED_WORD_INT     id
                     $$ = newDeclarationNode(__Char);
                     $$ -> subNode[0] = $2;
                 }
-            | KEY_RESERVED_WORD_DOUBLE  id
+            | KEY_RESERVED_WORD_BOOL  id
                 {
                     $$ = newDeclarationNode(__Bool);
                     $$ -> subNode[0] = $2;
@@ -119,14 +119,13 @@ cmdBlock:     KEY_MORE_IDENTATION cmd KEY_LESS_IDENTATION
                 }
             ;
 
-cmd:          action KEY_LINEBREAK otherCmd { $$ = NULL; }
+cmd:          action KEY_LINEBREAK otherCmd
                 {
                     $$ = newExpressionNode(_Command);
                     $$ -> subNode[0] = $1;
                     $$ -> subNode[1] = $3;
 
                 }
-            | conditional { $$ = NULL; }
             ;
 
 otherCmd:     /* A = Lambda */
@@ -135,85 +134,218 @@ otherCmd:     /* A = Lambda */
                 }
             | cmd 
                 {
-                    $$ = $1;
+                    $$ = $1;;
                 }
             ;
 
-action:       operation
-            | conditional
-            | repetition
-            | returning
-            | declaration
+action:       operation     {$$ = $1;}
+            | conditional   {$$ = $1;}
+            | repetition    {$$ = $1;}
+            | returning     {$$ = $1;}
+            | declaration   {$$ = $1;}
             ;
 
 
-operation:    assigner { $$ = $1; }
+operation:    assigner      {$$ = $1;}
             ;
 
-assigner:     ternary { $$ = NULL; } /* A = B */
-            | assigner KEY_EQUAL ternary { $$ = NULL; }
+assigner:     ternary {$$ = $1;} /* A = B */
+            | assigner KEY_EQUAL ternary
+                {
+                    $$ = newStatementNode(_Assign);
+                    $$ -> subNode[0] = $1;
+                    $$ -> subNode[1] = $3;
+                ; }
             ;
 
-ternary:      logicOr { $$ = NULL; } /* A = B */
-            | logicOr KEY_INTERROGATION ternary KEY_COLON ternary { $$ = NULL; } /* A = B ? A:    A */
+ternary:      logicOr {$$ = $1;} /* A = B */
+            | logicOr KEY_INTERROGATION ternary KEY_COLON ternary
+            {
+                $$ = newExpressionNode(_Operation);
+                $$ -> subNode[0] = $1;
+                $$ -> subNode[1] = $3;
+                $$ -> subNode[2] = $5;
+                $$ -> about.oper = KEY_INTERROGATION;
+            } /* A = B ? A:    A */
             ;
 
-logicOr:      logicAnd { $$ = NULL; } /* A = B */
-            | logicOr KEY_OR logicAnd { $$ = NULL; }  /* a || b */
+logicOr:      logicAnd {$$ = $1;} /* A = B */
+            | logicOr KEY_OR logicAnd
+                {
+                    $$ = newExpressionNode(_Operation);
+                    $$ -> subNode[0] = $1;
+                    $$ -> subNode[1] = $3;
+                    $$ -> about.oper = KEY_OR;
+                }  /* a || b */
             ;
 
-logicAnd:     bitwiseOr { $$ = NULL; } /* A = B */
-            | logicAnd KEY_AND bitwiseOr { $$ = NULL; }  /* a && b */
+logicAnd:     bitwiseOr {$$ = $1;} /* A = B */
+            | logicAnd KEY_AND bitwiseOr
+                {
+                    $$ = newExpressionNode(_Operation);
+                    $$ -> subNode[0] = $1;
+                    $$ -> subNode[1] = $3;
+                    $$ -> about.oper = KEY_AND;
+                }  /* a && b */
             ;
 
-bitwiseOr:    bitwiseXor { $$ = NULL; } /* A = B */
-            | KEY_PIPE bitwiseOr { $$ = NULL; } /* a | b */
+bitwiseOr:    bitwiseXor {$$ = $1;} /* A = B */
+            | bitwiseOr KEY_PIPE bitwiseXor
+            {
+                    $$ = newExpressionNode(_Operation);
+                    $$ -> subNode[0] = $1;
+                    $$ -> subNode[1] = $3;
+                    $$ -> about.oper = KEY_PIPE;
+            } /* a | b */
             ;
 
-bitwiseXor:   bitwiseAnd { $$ = NULL; } /* A = B */
-            | KEY_CARET bitwiseXor { $$ = NULL; } /* ^a */
+bitwiseXor:   bitwiseAnd {$$ = $1;} /* A = B */
+            | bitwiseXor KEY_CARET bitwiseAnd
+            {    
+                $$ = newExpressionNode(_Operation);
+                $$ -> subNode[0] = $1;
+                $$ -> subNode[1] = $3;
+                $$ -> about.oper = KEY_CARET;
+            } /* ^a */
             ;
 
-bitwiseAnd:   relatEqual { $$ = NULL; } /* A = B */
-            | KEY_AMPERSAND bitwiseAnd { $$ = NULL; } /* a & b */
+bitwiseAnd:   relatEqual {$$ = $1;} /* A = B */
+            | bitwiseAnd KEY_AMPERSAND bitwiseAnd 
+                {
+                    $$ = newExpressionNode(_Operation);
+                    $$ -> subNode[0] = $1;
+                    $$ -> subNode[1] = $3;
+                    $$ -> about.oper = KEY_AMPERSAND;
+                } /* a & b */
             ;
 
-relatEqual:   relatOrder { $$ = NULL; } /* A = B */
-            | relatEqual KEY_IS_EQUAL relatOrder { $$ = NULL; }  /* a == b */
-            | relatEqual KEY_IS_NOT_EQUAL relatOrder { $$ = NULL; }  /* a != b */
+relatEqual:   relatOrder {$$ = $1;} /* A = B */
+            | relatEqual KEY_IS_EQUAL relatOrder
+                {
+                    $$ = newExpressionNode(_Operation);
+                    $$ -> subNode[0] = $1;
+                    $$ -> subNode[1] = $3;
+                    $$ -> about.oper = KEY_IS_EQUAL;
+                }  /* a == b */
+            | relatEqual KEY_IS_NOT_EQUAL relatOrder
+                {
+                    $$ = newExpressionNode(_Operation);
+                    $$ -> subNode[0] = $1;
+                    $$ -> subNode[1] = $3;
+                    $$ -> about.oper = KEY_IS_NOT_EQUAL;
+                }  /* a != b */
             ;
             
 
-relatOrder:   plusMinus { $$ = NULL; } /* A = B */
-            | relatOrder KEY_LESSER_EQUAL plusMinus { $$ = NULL; } /* a <= b */
-            | relatOrder KEY_GREATER_EQUAL plusMinus { $$ = NULL; } /* a >= b */
-            | relatOrder KEY_LESSER plusMinus { $$ = NULL; } /* a < b */
-            | relatOrder KEY_GREATER plusMinus { $$ = NULL; } /* a > b */
+relatOrder:   plusMinus {$$ = $1;} /* A = B */
+            | relatOrder KEY_LESSER_EQUAL plusMinus 
+                {
+                    $$ = newExpressionNode(_Operation);
+                    $$ -> subNode[0] = $1;
+                    $$ -> subNode[1] = $3;
+                    $$ -> about.oper = KEY_LESSER_EQUAL;
+                } /* a <= b */
+            | relatOrder KEY_GREATER_EQUAL plusMinus 
+                {
+                    $$ = newExpressionNode(_Operation);
+                    $$ -> subNode[0] = $1;
+                    $$ -> subNode[1] = $3;
+                    $$ -> about.oper = KEY_GREATER_EQUAL;
+                } /* a >= b */
+            | relatOrder KEY_LESSER plusMinus 
+                {
+                    $$ = newExpressionNode(_Operation);
+                    $$ -> subNode[0] = $1;
+                    $$ -> subNode[1] = $3;
+                    $$ -> about.oper = KEY_LESSER;
+                } /* a < b */
+            | relatOrder KEY_GREATER plusMinus 
+                {
+                    $$ = newExpressionNode(_Operation);
+                    $$ -> subNode[0] = $1;
+                    $$ -> subNode[1] = $3;
+                    $$ -> about.oper = KEY_GREATER;
+                } /* a > b */
             ;
 
-plusMinus:    multDiv { $$ = NULL; } /* A = B */
-            | plusMinus KEY_PLUS    multDiv { $$ = NULL; } /* A = A + B */
-            | plusMinus KEY_MINUS   multDiv { $$ = NULL; } /* A = A - B */
+plusMinus:    multDiv {$$ = $1;} /* A = B */
+            | plusMinus KEY_PLUS    multDiv 
+            {
+                    $$ = newExpressionNode(_Operation);
+                    $$ -> subNode[0] = $1;
+                    $$ -> subNode[1] = $3;
+                    $$ -> about.oper = KEY_PLUS;
+            } /* A = A + B */
+            | plusMinus KEY_MINUS   multDiv 
+            {
+                    $$ = newExpressionNode(_Operation);
+                    $$ -> subNode[0] = $1;
+                    $$ -> subNode[1] = $3;
+                    $$ -> about.oper = KEY_MINUS;
+            } /* A = A - B */
             ;
 
-multDiv:      logicNot { $$ = NULL; } /* A = B */
-            | multDiv KEY_ASTERISK  logicNot { $$ = NULL; } /* A = A * B */
-            | multDiv KEY_SLASH     logicNot { $$ = NULL; } /* A = A / B */
-            | multDiv KEY_PERCENT   logicNot { $$ = NULL; } /* A = A % B */
+multDiv:      logicNot {$$ = $1;} /* A = B */
+            | multDiv KEY_ASTERISK  logicNot
+            {
+                    $$ = newExpressionNode(_Operation);
+                    $$ -> subNode[0] = $1;
+                    $$ -> subNode[1] = $3;
+                    $$ -> about.oper = KEY_ASTERISK;    
+            } /* A = A * B */
+            | multDiv KEY_SLASH     logicNot
+            {
+                    $$ = newExpressionNode(_Operation);
+                    $$ -> subNode[0] = $1;
+                    $$ -> subNode[1] = $3;
+                    $$ -> about.oper = KEY_SLASH;    
+            } /* A = A / B */
+            | multDiv KEY_PERCENT   logicNot
+            {
+                    $$ = newExpressionNode(_Operation);
+                    $$ -> subNode[0] = $1;
+                    $$ -> subNode[1] = $3;
+                    $$ -> about.oper = KEY_PERCENT;    
+            } /* A = A % B */
             ;
 
-logicNot:     negPos { $$ = NULL;} /* A = B */
-            | KEY_EXCLAMATION negPos { $$ = NULL; } /* !a */
-            | KEY_TILDE negPos { $$ = NULL; } /* ~a */
+logicNot:     negPos {$$ = $1;} /* A = B */
+            | KEY_EXCLAMATION negPos 
+                {
+                    $$ = newExpressionNode(_Operation);
+                    $$ -> subNode[0] = $2;
+                    $$ -> about.oper = KEY_EXCLAMATION;   
+                } /* !a */
+            | KEY_TILDE negPos 
+                {
+                    $$ = newExpressionNode(_Operation);
+                    $$ -> subNode[0] = $2;
+                    $$ -> about.oper = KEY_TILDE;   
+                } /* ~a */
             ;
 
-negPos:       paren { $$ = NULL; } /* A = B */
-            | KEY_PLUS negPos { $$ = NULL; } /* A = +A */
-            | KEY_MINUS  negPos { $$ = NULL; } /* A = -A */
+negPos:       paren {$$ = $1;} /* A = B */
+            | KEY_PLUS negPos 
+                {
+                    $$ = newExpressionNode(_Operation);
+                    $$ -> subNode[0] = $2;
+                    $$ -> about.oper = KEY_PERCENT;   
+                } /* A = +A */
+            | KEY_MINUS  negPos 
+                {
+                    $$ = newExpressionNode(_Operation);
+                    $$ -> subNode[0] = $2;
+                    $$ -> about.oper = KEY_PERCENT;   
+                } /* A = -A */
             ;
 
-paren:        id { $$ = NULL; } /* A = a */
-            | KEY_BRACKET_R_L operation KEY_BRACKET_R_R { $$=NULL; } /* A=(B) */
+paren:        id {$$ = $1;} /* A = a */
+            | KEY_BRACKET_R_L operation KEY_BRACKET_R_R
+                {
+                    $$ = newExpressionNode(_Operation);
+                    $$ -> subNode[0] = $2;
+                    $$ -> about.oper = KEY_BRACKET_R_L;   
+                } /* A=(B) */
             ;
 
 
@@ -222,8 +354,24 @@ id:           KEY_ID
                     $$ = newExpressionNode(_Id);
                     $$ ->about.declName = yytext;
                 }
-            | KEY_RESERVED_WORD_TRUE { $$ = NULL; }   /* True */
-            | KEY_RESERVED_WORD_FALSE { $$ = NULL; }  /* False */
+            | KEY_INTEGER
+                {
+                    $$ = newExpressionNode(_Literal);
+                    $$ -> about.literal = yytext;
+                }
+            | KEY_REAL
+                {
+                    $$ = newExpressionNode(_Literal);
+                    $$ -> about.literal = yytext;
+                }
+            | KEY_RESERVED_WORD_TRUE
+                {
+                    $$ = NULL; 
+                }   /* True */
+            | KEY_RESERVED_WORD_FALSE
+                {
+                    $$ = NULL; 
+                }  /* False */
             ;
 
 %%

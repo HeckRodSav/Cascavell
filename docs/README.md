@@ -44,9 +44,7 @@ A linguagem conta com operadores bit-a-bit, operadores lógicos e operadores ari
 
 |Nível de precedência|Operador|Grupo|Descrição|
 |:------------------:|:------:|:---:|:--------|
-| 1  | ( )  |  | |
-| 1  | [ ]  |  | |
-| 1  | { }  |  | |
+| 1  | ( )  | Lógico | Precedencia preferencial |
 | 2  | !    | Lógico | Negação lógica |
 | 2  | ~    | Bit-a-bit | Negação bit-a-bit |
 | 3  | *    | Aritmético | Multiplicação |

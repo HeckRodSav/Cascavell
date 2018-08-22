@@ -51,33 +51,58 @@ extern Stack tabulationStack;
 entrada : /* vazia */
         ;
 
-condicional : KEY_RESERVED_WORD_IF logic KEY_COLON cmd elser 
+conditional : KEY_RESERVED_WORD_IF operation KEY_COLON cmdBlock elser 
                 {
-                $$ = newStatementNode(_If);
-                $$ -> subNode[0] = $2;
-                $$ -> subNode[1] = $4;
-                $$ -> subNode[2] = $2;
+                    $$ = newStatementNode(_If);
+                    $$ -> subNode[0] = $2;
+                    $$ -> subNode[1] = $4;
+                    $$ -> subNode[2] = $5;
                 }
             ;
 
-elser   : /* Lambda */
-            {
-                $$ = NULL;
-            }
-        | KEY_RESERVED_WORD_ELSE cmd 
-            {
-                $$ = newStatementNode(_Else);
-                $$ = subNode[0] = $2;
-            }
-        ;
+elser       : /* Lambda */
+                {
+                    $$ = NULL;
+                }
+            | KEY_RESERVED_WORD_ELSE cmdBlock
+                {
+                    $$ = newStatementNode(_Else);
+                    $$ = subNode[0] = $2;
+                }
+            ;
+
+repetition  : KEY_RESERVED_WORD_WHILE operation KEY_COLON cmdBlock
+                {
+                    $$ = newStatementNode(_While);
+                    $$ -> subNode[0] = $2;
+                    $$ -> subNode[1] = $4;
+                }
+            ;
+
+returning   : KEY_RESERVED_WORD_RETURN operation
+                {
+                    $$ = newStatementNode(_Return);
+                    $$ = subNode[0] = $2;
+                }
+            ;
+
+cmdBlock    : KEY_MORE_IDENTATION cmd KEY_LESS_IDENTATION { $$ = NULL; }
+            ;
+
+cmd         : cmd KEY_LINEBREAK cmd { $$ = NULL; }
+            | conditional { $$ = NULL; }
+            ;
 
 
+operation   : assigner
+            ;
 
 assigner    : ternary { $$ = NULL; } /* A = B */
             | assigner KEY_EQUAL ternary { $$ = NULL; }
             ;
 
 ternary     : logicOr { $$ = NULL; } /* A = B */
+            | logicOr KEY_INTERROGATION ternary KEY_COLON ternary { $$ = NULL; } /* A = B ? A : A */
             ;
 
 logicOr     : logicAnd { $$ = NULL; } /* A = B */
@@ -135,22 +160,14 @@ negPos      : paren { $$ = NULL; } /* A = B */
             ;
 
 paren       : id { $$ = NULL; } /* A = a */
-            | KEY_BRACKET_R_L thing KEY_BRACKET_R_R { $$=NULL; } /* A=(B) */
+            | KEY_BRACKET_R_L operation KEY_BRACKET_R_R { $$=NULL; } /* A=(B) */
+            ;
 
-thing       : 
-            ;  
 
 id          :
             | KEY_RESERVED_WORD_TRUE { $$ = NULL; }   /* True */
             | KEY_RESERVED_WORD_FALSE { $$ = NULL; }  /* False */
             ;
-            
-
-cmd : /**/
-    | KEY_MORE_IDENTATION cmd KEY_LESS_IDENTATION { $$ = NULL; }
-    | cmd KEY_LINEBREAK cmd { $$ = NULL; }
-    | condicional { $$ = NULL; }
-    ;
 
 %%
 

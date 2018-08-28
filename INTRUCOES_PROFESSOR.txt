@@ -1,0 +1,18 @@
+nomes:
+Guilherme S.
+Heitor R.
+
+abrir o terminal nasta pasta, em seguida
+
+> cd c.version.lexer
+> make full
+> cd ..
+
+estes comandos compilarão e executarão o analisador léxico nos arquivos da pasta exemplos, gerando log de saída
+
+> cd c.version.parser
+> make full
+> cd ..
+
+estes comandos compilarão e executarão o analisador sintático nos arquivos da pasta exemplos, sem geração de log de saída
+
